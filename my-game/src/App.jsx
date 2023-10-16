@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useRef, useEffect,useState } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Sky } from '@react-three/drei';
+import { PlaneGeometry } from 'three';
+import { Leva, useControls } from 'leva';
+import { OrbitControls } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
+import * as THREE from 'three';
+import { useThree } from '@react-three/fiber';
+import Airplane from './Components/Airplane.jsx';
+import Planet from './Components/Planet.jsx';
+import Building from './Components/Building.jsx';
+
 
 function App() {
-  const [count, setCount] = useState(0)
+  const planetRadius = 50;
+
+
+
+  const cameraRef = useRef();
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    <Leva/>
+    <Canvas  camera={{ position: [5, 5, 5], fov: 75 }}>
+      <Sky
+        distance={42000}  // Camera distance (default=450000)
+        inclination={0.55} // Sun elevation angle from 0 to 1 (default=0)
+        azimuth={0.25}     // Sun rotation around the Y-axis from 0 to 1 (default=0.25)
+      />
+      <ambientLight intensity={1} />
+
+      <Airplane planetRadius={planetRadius}/>
+      <Planet planetRadius={planetRadius} />
+      <Building />
+      <OrbitControls/>
+
+    </Canvas>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
