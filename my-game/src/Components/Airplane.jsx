@@ -7,67 +7,106 @@ function Airplane({ planetRadius }) {
     const { nodes, animations } = useGLTF('/plane/scene.gltf');
     const { actions, mixer } = useAnimations(animations);
     const { camera } = useThree();
-    let PlanePosition = new THREE.Vector3(0, planetRadius+3, 0);
     const mixerRef = useRef(null);
 
-    const MAX_PITCH = Math.PI / 4; // 45 degrees
-    const MAX_ROLL = Math.PI / 3;  // 60 degrees
-    const MIN_THRUST = 0.01;       // Minimum forward movement
-    const MAX_THRUST = 0.3;       // Maximum forward movement
+    const MAX_PITCH = Math.PI / 6; // 45 degrees
+    const THRUST = 0.01;       // Minimum forward movement
+    const MAX_YAW = Math.PI / 6;   // 30 degrees
+    const [PlanePosition, setPlanePosition] = useState(new THREE.Vector3(0, planetRadius+3, 0));
 
     const [planeState, setPlaneState] = useState({
         yaw: 0,
         pitch: 0,
-        roll: 0,
-        thrust: MIN_THRUST,
+        moveX: 0,  
+        moveZ: 0,
+        thrust: THRUST,  
     });
+    
+    
+
 
     useEffect(() => {
         const handleKeyDown = (event) => {
             let newState = { ...planeState };
             switch (event.key) {
-                case "a":
-                    newState.yaw = 0.01;
-                    break;
-                case "d":
-                    newState.yaw = -0.01;
+                case "s":
+                    newState.pitch = 1;
+                    newState.moveZ = -1;  // Add this
                     break;
                 case "w":
-                    newState.pitch = Math.min(newState.pitch + 0.01, MAX_PITCH);
-                    newState.thrust = Math.min(newState.thrust + 0.01, MAX_THRUST);
+                    newState.pitch = -1;
+                    newState.moveZ = 1;  // Add this
                     break;
-                case "s":
-                    newState.pitch = Math.max(newState.pitch - 0.01, -MAX_PITCH);
-                    newState.thrust = Math.max(newState.thrust - 0.01, MIN_THRUST);
+                case "a":
+                    newState.yaw = 1;
+                    newState.moveX = -1;  // Add this
                     break;
-                case "q":
-                    newState.roll = Math.min(newState.roll + 0.01, MAX_ROLL);
+                case "d":
+                    newState.yaw = -1;
+                    newState.moveX = 1;  // Add this
                     break;
-                case "e":
-                    newState.roll = Math.max(newState.roll - 0.01, -MAX_ROLL);
-                    break;
+                default:
+                    return;
             }
             setPlaneState(newState);
         };
+        
+        const handleKeyUp = (event) => {
+            let newState = { ...planeState };
+            switch (event.key) {
+                case "w":
+                case "s":
+                    newState.pitch = 0;
+                    newState.moveZ = 0;  // Add this
+                    break;
+                case "a":
+                case "d":
+                    newState.yaw = 0;
+                    newState.moveX = 0;  // Add this
+                    break;
+                default:
+                    return;
+            }
+            setPlaneState(newState);
+        };
+        
 
         window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
+        window.addEventListener("keyup", handleKeyUp);
+    
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keyup", handleKeyUp);
+        };
     }, [planeState]);
 
     useFrame(() => {
         const planeObject = nodes.Sketchfab_model;
-    
-        // Apply plane controls
-        planeObject.rotation.y += planeState.yaw;
-        planeObject.rotation.x += planeState.pitch;
-        planeObject.rotation.z += planeState.roll;
-        PlanePosition.z -= planeState.thrust;
-        
-        planeObject.position.set(PlanePosition.x, PlanePosition.y, PlanePosition.z);
 
-        // Reset yaw after applying (to prevent indefinite accumulation)
-        planeState.yaw = 0;
+
+        PlanePosition.z -= planeState.thrust;
+        planeObject.position.z = PlanePosition.z;
+
+            // Update PlanePosition based on moveX and moveZ
+        PlanePosition.x += planeState.moveX * planeState.thrust;
+        PlanePosition.z += planeState.moveZ * planeState.thrust;
+        planeObject.position.copy(PlanePosition);
+
     
+        // Apply and limit yaw
+        planeObject.rotation.y = THREE.MathUtils.clamp(
+            planeObject.rotation.y + (planeState.yaw * 0.02),
+            -MAX_YAW,
+            MAX_YAW
+        );
+
+        // Apply and limit pitch
+        planeObject.rotation.x = THREE.MathUtils.clamp(
+            planeObject.rotation.x + (planeState.pitch * 0.02),
+            -MAX_PITCH-Math.PI / 2,
+            MAX_PITCH -Math.PI / 2
+        );
+
         // Move the camera along with the plane
         camera.position.x = PlanePosition.x + 0; // Adjust this if you want the camera to lag/lead a bit.
         camera.position.y = PlanePosition.y + 3;
@@ -85,13 +124,11 @@ function Airplane({ planetRadius }) {
         }
     }, [animations, nodes]);
     
-
     useFrame((state, delta) => {
         mixerRef.current && mixerRef.current.update(delta);
     });
 
     
-
     return (
       <primitive 
         castShadow

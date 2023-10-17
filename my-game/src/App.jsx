@@ -10,7 +10,7 @@ import { useThree } from '@react-three/fiber';
 import Airplane from './Components/Airplane.jsx';
 import Planet from './Components/Planet.jsx';
 import Building from './Components/Building.jsx';
-
+import { RigidBody } from '@react-three/rapier'
 
 function App() {
   const planetRadius = 50;
@@ -32,7 +32,8 @@ function App() {
 
       <Airplane planetRadius={planetRadius}/>
       <Planet planetRadius={planetRadius} />
-      <Building />
+        <Building />
+
       <OrbitControls/>
 
     </Canvas>
