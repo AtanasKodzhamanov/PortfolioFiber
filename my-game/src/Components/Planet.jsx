@@ -1,14 +1,12 @@
 import React from "react";
-import * as THREE from "three";
-
 
 function Planet({planetRadius}) {
-    return (
-      <mesh position={[0, 0, 0]} receiveShadow>
-        <sphereGeometry args={[planetRadius]} /> {/* 5 is the radius, adjust as needed */}
-        <meshStandardMaterial/>
-      </mesh>
-    );
-  }
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
+      <planeGeometry args={[planetRadius * 2, planetRadius * 2]} />
+      <meshStandardMaterial color="green" />
+    </mesh>
+  );
+}
 
 export default Planet;

@@ -12,7 +12,7 @@ function Airplane({ planetRadius }) {
     const MAX_PITCH = Math.PI / 6; // 45 degrees
     const THRUST = 0.01;       // Minimum forward movement
     const MAX_YAW = Math.PI / 6;   // 30 degrees
-    const [PlanePosition, setPlanePosition] = useState(new THREE.Vector3(0, planetRadius+3, 0));
+    const [PlanePosition, setPlanePosition] = useState(new THREE.Vector3(0, 3, 40));
 
     const [planeState, setPlaneState] = useState({
         yaw: 0,
@@ -113,7 +113,14 @@ function Airplane({ planetRadius }) {
         camera.position.z = PlanePosition.z + 3;
     
         // Adjust the orientation of the camera to look forward from the plane's POV
-        camera.lookAt(PlanePosition.x, PlanePosition.y, PlanePosition.z - 5);
+        camera.lookAt(PlanePosition.x+10, PlanePosition.y, PlanePosition.z - 15);
+        // Create a quaternion for a rotation of 45 degrees around the Y-axis
+        const quaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 4);
+
+        // Apply the rotation to the camera
+        camera.quaternion.multiplyQuaternions(quaternion, camera.quaternion);
+
+        camera.updateProjectionMatrix();
     });
     
 

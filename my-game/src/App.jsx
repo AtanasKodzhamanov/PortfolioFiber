@@ -30,10 +30,9 @@ function App() {
       />
       <ambientLight intensity={1} />
 
-      <Airplane planetRadius={planetRadius}/>
       <Planet planetRadius={planetRadius} />
-        <Building />
-
+      <Building />
+      <Airplane planetRadius={planetRadius} />
       <OrbitControls/>
 
     </Canvas>

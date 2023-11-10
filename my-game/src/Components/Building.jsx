@@ -3,10 +3,10 @@ import { RigidBody } from '@react-three/rapier'
 
 function Building(){
     return (
-            <mesh scale={[10, 10, 10]} position={[0, 0, 0]} receiveShadow>
-                <boxGeometry args={[1, 10, 1]} /> {/* Adjust the size of the building using the args */}
-                <meshStandardMaterial color="red" />
-            </mesh>
+      <mesh position={[0, 5, 0]} receiveShadow>  {/* Here, 5 is half of the building's height. Adjust accordingly */}
+        <boxGeometry args={[2, 10, 2]} />  {/* Here, 10 is the building's height. Adjust accordingly */}
+        <meshStandardMaterial color="red" />
+      </mesh>
     )
   }
 
